@@ -8,34 +8,52 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# --- Page Configuration and Professional Styling (Dark Theme Fix) ---
 st.set_page_config(
     page_title="ResuMate AI: Professional Review", 
     page_icon="📄", 
     layout="wide" 
 )
 
+# Custom CSS for a clean, professional Dark Theme that makes inputs blend
 st.markdown("""
 <style>
-    /* Main Background: Very light gray to give contrast for white containers */
-    .reportview-container .main {
-        background-color: #f8f9fa; 
+    /* 1. Main Background: Dark Blue/Gray */
+    .stApp, .reportview-container .main {
+        background-color: #1a1a1a; 
+        color: #ffffff;
     }
     
-    /* Input Container (Card) Styling */
+    /* 2. Header/Title Style */
+    .css-1aumxm4 {
+        color: #ffffff; /* White title */
+        text-align: left;
+        padding-top: 15px;
+    }
+
+    /* 3. Input Container (Card) Styling: Changed to dark background */
     .input-card {
         padding: 30px;
         border-radius: 12px;
-        background-color: #ffffff; /* White card background */
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background-color: #2c2c2c; /* Dark gray card background */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         margin-bottom: 25px;
         border-left: 5px solid #007BFF; /* Accent border */
     }
 
-    /* Header/Title Style */
-    .css-1aumxm4 {
-        color: #1a1a1a; 
-        text-align: left;
-        padding-top: 15px;
+    /* 4. Input Field Styling (Text Input & Uploader Backgrounds) */
+    .stTextInput>div>div>input {
+        background-color: #1a1a1a; /* Very dark background for input fields */
+        color: #ffffff;
+        border-radius: 6px;
+        border: 1px solid #555555;
+        padding: 10px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
+    }
+    
+    /* Ensure all text/labels inside the card are white */
+    label, h2, h3, p {
+        color: #ffffff !important;
     }
 
     /* Button Styling (Primary Action Blue) */
@@ -49,39 +67,32 @@ st.markdown("""
         border: none;
         width: 100%; /* Full width for better alignment */
         transition: all 0.3s ease;
-        margin-top: 20px; /* Added margin for separation */
+        margin-top: 20px;
     }
     .stButton>button:hover {
         background-color: #0056b3;
         box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
     }
     
-    /* Input Field Styling */
-    .stTextInput>div>div>input {
-        border-radius: 6px;
-        border: 1px solid #ced4da;
-        padding: 10px;
-        box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
-    }
-    
-    /* Expander Styling */
+    /* Expander Styling for Results (If used later) */
     .streamlit-expanderHeader {
         font-weight: bold;
-        color: #1a1a1a;
+        color: #eeeeee;
         font-size: 18px;
-        background-color: #e9ecef; /* Light gray header */
+        background-color: #2c2c2c; 
         border-radius: 6px;
         padding: 10px;
         border-left: 4px solid #007BFF;
     }
     .streamlit-expanderContent {
-        padding-left: 15px;
-        padding-top: 10px;
+        background-color: #1a1a1a;
+        color: #ffffff;
     }
 </style>
 """, unsafe_allow_html=True)
 
 
+# --- API Configuration ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -90,6 +101,7 @@ else:
     st.stop()
 
 
+# --- Header Section ---
 st.title("ResuMate AI: Professional Resume Review")
 st.markdown(
     """
@@ -98,6 +110,8 @@ st.markdown(
 )
 
 
+# --- Input Definitions (Main Area Card) ---
+# Inputs are placed in the main area to ensure the page is not empty
 with st.container():
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.header("Step 1: Document and Target")
@@ -122,6 +136,7 @@ with st.container():
     st.markdown('</div>', unsafe_allow_html=True)
 
 
+# --- Sidebar (Help/Instructions) ---
 with st.sidebar:
     st.header("How to Get the Best Review")
     st.markdown(
@@ -129,21 +144,22 @@ with st.sidebar:
         The quality of the feedback depends on the detail provided:
 
         **1. Resume Format:**
-        * Use clean PDF files, as complex formatting (like graphics or multi-column layouts) can confuse the text extraction process.
+        * Use clean PDF files; complex graphics can complicate text extraction.
         * Plain `.txt` files offer the highest reliability.
 
         **2. Target Role:**
-        * Be as **specific as possible**. Instead of "Marketing," use "Senior Digital Marketing Manager."
-        * The AI uses this role to perform a deep **keyword alignment** check against industry standards.
+        * Be as **specific as possible** (e.g., "Senior Digital Marketing Manager").
+        * The AI uses this role for a deep **keyword alignment** check against industry standards.
 
         **3. Review Sections:**
-        The analysis will be structured into five key areas, including **ATS scoring** and **quantifiable achievement** critiques.
+        The analysis covers **ATS scoring**, **quantifiable achievement** critiques, and formatting.
         """
     )
     st.markdown("---")
     st.info("The comprehensive analysis typically completes in under 30 seconds.")
 
 
+# --- Text Extraction Functions ---
 def extract_text_from_pdf(pdf_file_bytes):
     pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file_bytes))
     text = ""
@@ -162,13 +178,17 @@ def extract_text_from_file(file):
         encoding = result.get('encoding', 'utf-8')
         return bfile.decode(encoding)
     return ""
-    
 
+
+# --- Conditional Logic for Analysis or Initial State ---
+
+# 1. Handle the Initial Landing State (before analysis is clicked)
 if not analyze_button:
     st.info("To begin, please use the card above to upload your resume and specify the job role, then click 'Analyze Resume' for a comprehensive review.")
     st.stop()
 
 
+# 2. Main Analysis Logic (Only runs if analyze_button is True)
 if analyze_button:
     
     if not uploaded_file:
@@ -189,6 +209,7 @@ if analyze_button:
                 st.error("Error: Text extraction failed or the file is empty. Please verify the uploaded document.")
                 st.stop()
 
+            # LLM Prompt (using the simple markdown output structure requested in the original file)
             prompt = f"""
             Act as an expert career coach and senior recruiter with 15 years of experience in the relevant industry for the role of '{job_role}'.
             Your task is to perform a comprehensive review of the following resume. Your critique must be constructive, detailed, and actionable.
@@ -197,59 +218,23 @@ if analyze_button:
             Resume Content:
             {file_content}
 
-            You MUST structure your entire feedback into five distinct, clearly labeled sections. **Crucially, you must wrap each section's content in specific XML-like tags.** The response MUST only contain the tags and the markdown content within them. Do not include the section number or title within the markdown content inside the tags, as the application will provide the title.
-
-            Tags to use:
-            1. <FirstImpression>...</FirstImpression>
-            2. <ATSKeywords>...</ATSKeywords>
-            3. <ImpactQuantification>...</ImpactQuantification>
-            4. <FormattingReadability>...</FormattingReadability>
-            5. <OverallRecommendation>...</OverallRecommendation>
-
-            Example Structure:
-            <FirstImpression>
-            **Immediate reaction:** The layout is clean but lacks a professional summary.
-            * **Strength:** Strong quantifiable results are evident.
-            * **Weakness:** Too much focus on duties rather than achievements.
-            </FirstImpression>
-            
-            [... and so on for the remaining sections ...]
-
-            Ensure all content within the tags uses strong markdown (bold text, bullet points) for maximum readability.
+            Please structure your feedback into the following sections, using clear markdown headings (H3) for each section:
+            1.  **First Impression (5-Second Test):** Your immediate impression of the candidate. What stands out, for better or worse?
+            2.  **ATS & Keyword Alignment:** Analyze how well the resume is optimized for Applicant Tracking Systems (ATS). Compare keywords from the resume against the likely requirements for the '{job_role}' role. List critical keywords that are present and suggest any that are missing.
+            3.  **Impact & Quantification:** Review the bullet points. Identify 3-5 examples that could be stronger and rewrite them to be more impactful using the STAR (Situation, Task, Action, Result) method. Emphasize adding metrics and quantifiable achievements.
+            4.  **Clarity, Formatting, and Readability:** Comment on the structure and layout. Is it easy to read? Are there any formatting issues?
+            5.  **Overall Recommendation:** Provide a final summary and a recommendation. Based on the resume, would you recommend this candidate for an interview? Why or why not?
             """
             model = genai.GenerativeModel(
                 model_name="gemini-2.5-flash",
-                system_instruction="You are a world-class expert resume reviewer and career coach. Your output MUST strictly adhere to the requested XML-like tag structure for parsing."
+                system_instruction="You are a world-class expert resume reviewer and career coach. Format your output using clear markdown with bold text and bullet points."
             )
             response = model.generate_content(prompt)
-            raw_text = response.text
             
+            # --- Output Presentation ---
             st.markdown("---")
             st.header("Analysis Results")
-            
-            tags = {
-                "1. First Impression (5-Second Test)": ("<FirstImpression>", "</FirstImpression>"),
-                "2. ATS & Keyword Alignment": ("<ATSKeywords>", "</ATSKeywords>"),
-                "3. Impact & Quantification (STAR Method Focus)": ("<ImpactQuantification>", "</ImpactQuantification>"),
-                "4. Clarity, Formatting, & Readability": ("<FormattingReadability>", "</FormattingReadability>"),
-                "5. Overall Recommendation": ("<OverallRecommendation>", "</OverallRecommendation>")
-            }
-
-            def extract_content(text, start_tag, end_tag):
-                start_index = text.find(start_tag) + len(start_tag)
-                end_index = text.find(end_tag)
-                if start_index > len(start_tag) - 1 and end_index != -1:
-                    return text[start_index:end_index].strip()
-                return "Analysis content could not be found for this section. Please try rerunning the analysis."
-
-            for section_title, (start_tag, end_tag) in tags.items():
-                content = extract_content(raw_text, start_tag, end_tag)
-                
-                expanded = True if section_title.startswith("5.") else False
-
-                with st.expander(f"{section_title}", expanded=expanded):
-                    st.markdown(content, unsafe_allow_html=True)
-            
+            st.markdown(response.text)
             st.markdown("---")
             st.success("Review complete. Focus on the actionable feedback provided above for your next revision.")
 
