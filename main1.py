@@ -29,19 +29,10 @@ st.markdown("""
         color: #ffffff; /* White title */
         text-align: left;
         padding-top: 15px;
+    
     }
 
-    /* 3. Input Container (Card) Styling: Changed to dark background */
-    .input-card {
-        padding: 30px;
-        border-radius: 12px;
-        background-color: #2c2c2c; /* Dark gray card background */
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        margin-bottom: 25px;
-        border-left: 5px solid #007BFF; /* Accent border */
-    }
-
-    /* 4. Input Field Styling (Text Input & Uploader Backgrounds) */
+    /* 3. Input Field Styling (Text Input & Uploader Backgrounds) */
     .stTextInput>div>div>input {
         background-color: #1a1a1a; /* Very dark background for input fields */
         color: #ffffff;
@@ -240,3 +231,4 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
