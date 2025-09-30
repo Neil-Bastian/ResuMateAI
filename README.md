@@ -1,4 +1,4 @@
-📄 ResuMate AI: Professional Resume Reviewer
+**📄 ResuMate AI: Professional Resume Reviewer**
 ResuMate AI is an advanced web application designed to provide immediate, expert-level critique on resumes tailored for a specific job role. Leveraging the power of the Gemini API, it analyzes a resume (PDF or TXT format) against industry best practices, focusing on Applicant Tracking System (ATS) alignment, quantifiable impact, and overall readability.
 
 The application is built using Streamlit for a fast, interactive user interface in pure Python.
