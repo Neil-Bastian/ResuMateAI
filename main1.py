@@ -32,7 +32,7 @@ st.markdown("""
         .subtitle {
             text-align: center;
             font-size: 16px;
-            color: #1B3C53;
+            color: #f9fafb;
             margin-bottom: 2rem;
         }
 
@@ -41,7 +41,7 @@ st.markdown("""
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             padding: 0.6rem;
-            background: #f9fafb;
+            background: #262730;
         }
 
         /* Button */
@@ -67,7 +67,7 @@ st.markdown("""
 
         /* Results card */
         .result-card {
-            background: #f9fafb;
+            background: #262730;
             border: 1px solid #e5e7eb;
             border-radius: 10px;
             padding: 1.5rem;
@@ -144,6 +144,7 @@ if analyze_button and uploaded_file:
 
         except Exception as e:
             st.error(f" An error occurred during analysis: {str(e)}")
+
 
 
 
