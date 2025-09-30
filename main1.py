@@ -72,7 +72,7 @@ st.markdown("""
 st.title("📃 AI Resume Critiquer")
 st.markdown("<p class='subtitle'>Upload your resume and get expert AI-powered feedback tailored to your target role.</p>", unsafe_allow_html=True)
 
-]GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
 uploaded_file = st.file_uploader("Upload your resume (.PDF or .TXT)", type=["pdf", "txt"])
@@ -138,3 +138,4 @@ if analyze_button and uploaded_file:
 
         except Exception as e:
             st.error(f" An error occurred during analysis: {str(e)}")
+
