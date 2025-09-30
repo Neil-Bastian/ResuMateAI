@@ -55,6 +55,14 @@ st.markdown("""
         box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
     }
     
+    /* Input Field Styling */
+    .stTextInput>div>div>input {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
+    }
+    
     /* Expander Styling */
     .streamlit-expanderHeader {
         font-weight: bold;
@@ -149,8 +157,14 @@ def extract_text_from_file(file):
         encoding = result.get('encoding', 'utf-8')
         return bfile.decode(encoding)
     return ""
-    
-if analyze_button:
+
+
+if not analyze_button:
+    st.info("To begin, please upload your resume and specify the job role above, then click 'Analyze Resume' for a comprehensive review.")
+    st.stop()
+
+
+if analyze_button:    
     if not uploaded_file:
         st.error("Error: Please upload your resume file to proceed.")
         st.stop()
@@ -233,6 +247,5 @@ if analyze_button:
             st.markdown("---")
             st.success("Review complete. Focus on the actionable feedback provided above for your next revision.")
 
-if not analyze_button and not uploaded_file and not job_role:
-    st.info("To begin, use the sections above to upload your resume and specify the job role. Click 'Analyze Resume' for a comprehensive review.")
-
+        except Exception as e:
+            st.error(f"An error occurred during analysis or output parsing: {str(e)}")
