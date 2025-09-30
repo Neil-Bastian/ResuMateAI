@@ -118,7 +118,6 @@ with st.container():
     st.markdown('</div>', unsafe_allow_html=True)
 
 with st.sidebar:
-    st.sidebar.header("HELP")
     st.header("How to Get the Best Review")
     st.markdown(
         """
@@ -212,6 +211,7 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
 
 
 
