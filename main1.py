@@ -14,67 +14,6 @@ st.set_page_config(
     layout="centered"
 )
 
-st.markdown("""
-    <style>
-        /* Global font & background */
-        .stApp {
-            background-color: #2d2d2d;
-            font-family: "Inter", "Segoe UI", sans-serif;
-        }
-
-        /* Headings */
-        h1 {
-            text-align: center;
-            font-weight: 700;
-            color: #2d2d2d;
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 16px;
-            color: #f9fafb;
-            margin-bottom: 2rem;
-        }
-
-        /* Inputs */
-        .stTextInput, .stFileUploader {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 0.6rem;
-            background: #262730;
-        }
-
-        /* Button */
-        div.stButton > button {
-            background: #111827;
-            color: #334443;
-            font-weight: 600;
-            border-radius: 6px;
-            padding: 0.6rem 1.2rem;
-            border: none;
-            transition: background 0.2s ease;
-        }
-        div.stButton > button:hover {
-            background: #374151;
-        }
-
-        /* Divider */
-        hr {
-            border: none;
-            border-top: 1px solid #e5e7eb;
-            margin: 2rem 0;
-        }
-
-        /* Results card */
-        .result-card {
-            background: #262730;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 1.5rem;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 st.title("📃 ResuMate AI")
 st.markdown("<p class='subtitle'>Upload your resume and get expert AI-powered feedback tailored to your target role.</p>", unsafe_allow_html=True)
 
@@ -144,6 +83,7 @@ if analyze_button and uploaded_file:
 
         except Exception as e:
             st.error(f" An error occurred during analysis: {str(e)}")
+
 
 
 
