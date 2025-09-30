@@ -29,18 +29,17 @@ st.markdown("""
         color: #ffffff; /* White title */
         text-align: left;
         padding-top: 15px;
-    
     }
+
 
     /* 3. Input Field Styling (Text Input & Uploader Backgrounds) */
     .stTextInput>div>div>input {
         background-color: #1a1a1a; /* Very dark background for input fields */
         color: #ffffff;
-        border-radius: 8px;
+        border-radius: 6px;
         border: 1px solid #555555;
-        padding: 12px 35px;
+        padding: 10px;
         box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
-        margin-top: 20px;
     }
     
     /* Ensure all text/labels inside the card are white */
@@ -103,25 +102,22 @@ st.markdown(
 
 
 # --- Input Definitions (Main Area Card) ---
-# Inputs are placed in the main area to ensure the page is not empty
 with st.container():
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.header("Step 1: Document and Target")
     
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        uploaded_file = st.file_uploader(
-            "Upload Resume (.PDF or .txt)", 
-            type=["pdf", "txt"],
-            help="Your document content will be securely extracted for analysis."
-        )
+    # --- CHANGE START: Inputs are now stacked sequentially ---
+    uploaded_file = st.file_uploader(
+        "Upload Resume (.PDF or .txt)", 
+        type=["pdf", "txt"],
+        help="Your document content will be securely extracted for analysis."
+    )
         
-    with col2:
-        job_role = st.text_input(
-            "Enter the Target Job Role",
-            placeholder="e.g., Senior Data Scientist, UX Designer, Account Executive"
-        )
+    job_role = st.text_input(
+        "Enter the Target Job Role",
+        placeholder="e.g., Senior Data Scientist, UX Designer, Account Executive"
+    )
+    # --- CHANGE END ---
         
     analyze_button = st.button("Analyze Resume")
     
@@ -201,7 +197,7 @@ if analyze_button:
                 st.error("Error: Text extraction failed or the file is empty. Please verify the uploaded document.")
                 st.stop()
 
-            # LLM Prompt (using the simple markdown output structure requested in the original file)
+            # LLM Prompt
             prompt = f"""
             Act as an expert career coach and senior recruiter with 15 years of experience in the relevant industry for the role of '{job_role}'.
             Your task is to perform a comprehensive review of the following resume. Your critique must be constructive, detailed, and actionable.
@@ -232,6 +228,3 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
-
-
-
