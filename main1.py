@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 st.set_page_config(
-    page_title="AI Resume Critiquer",
+    page_title="ResuMate AI",
     page_icon="📃",
     layout="centered"
 )
@@ -18,7 +18,7 @@ st.markdown("""
     <style>
         /* Global font & background */
         .stApp {
-            background-color: #ffffff;
+            background-color: #2d2d2d;
             font-family: "Inter", "Segoe UI", sans-serif;
         }
 
@@ -32,7 +32,7 @@ st.markdown("""
         .subtitle {
             text-align: center;
             font-size: 16px;
-            color: #6b7280;
+            color: #1B3C53;
             margin-bottom: 2rem;
         }
 
@@ -47,7 +47,7 @@ st.markdown("""
         /* Button */
         div.stButton > button {
             background: #111827;
-            color: #ffffff;
+            color: #334443;
             font-weight: 600;
             border-radius: 6px;
             padding: 0.6rem 1.2rem;
@@ -75,7 +75,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("📃 AI Resume Critiquer")
+st.title("📃 ResuMate AI")
 st.markdown("<p class='subtitle'>Upload your resume and get expert AI-powered feedback tailored to your target role.</p>", unsafe_allow_html=True)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -144,5 +144,6 @@ if analyze_button and uploaded_file:
 
         except Exception as e:
             st.error(f" An error occurred during analysis: {str(e)}")
+
 
 
