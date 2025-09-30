@@ -8,14 +8,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- Page Configuration and Professional Styling ---
 st.set_page_config(
     page_title="ResuMate AI: Professional Review", 
     page_icon="📄", 
     layout="wide" 
 )
 
-# Custom CSS for a clean, card-based interface
 st.markdown("""
 <style>
     /* Main Background: Very light gray to give contrast for white containers */
@@ -75,7 +73,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# --- API Configuration ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -84,7 +81,6 @@ else:
     st.stop()
 
 
-# --- Header Section ---
 st.title("ResuMate AI: Professional Resume Review")
 st.markdown(
     """
@@ -93,12 +89,10 @@ st.markdown(
 )
 
 
-# --- Input Definitions (Moved to Main Area) ---
 with st.container():
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.header("Step 1: Document and Target")
     
-    # Use columns to align the uploader and text input nicely
     col1, col2 = st.columns(2)
     
     with col1:
@@ -120,7 +114,6 @@ with st.container():
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# --- Sidebar (Now for Instructions/Info) ---
 with st.sidebar:
     st.header("Review Guidelines")
     st.markdown(
@@ -138,7 +131,6 @@ with st.sidebar:
     st.info("The detailed analysis typically completes in under 30 seconds.")
 
 
-# --- Text Extraction Functions ---
 def extract_text_from_pdf(pdf_file_bytes):
     pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file_bytes))
     text = ""
@@ -158,8 +150,6 @@ def extract_text_from_file(file):
         return bfile.decode(encoding)
     return ""
     
-
-# --- Main Logic and Output Area ---
 if analyze_button:
     if not uploaded_file:
         st.error("Error: Please upload your resume file to proceed.")
@@ -179,7 +169,6 @@ if analyze_button:
                 st.error("Error: Text extraction failed or the file is empty. Please verify the uploaded document.")
                 st.stop()
 
-            # LLM Prompt (Using the same efficient XML-like tag structure for reliable parsing)
             prompt = f"""
             Act as an expert career coach and senior recruiter with 15 years of experience in the relevant industry for the role of '{job_role}'.
             Your task is to perform a comprehensive review of the following resume. Your critique must be constructive, detailed, and actionable.
@@ -215,11 +204,9 @@ if analyze_button:
             response = model.generate_content(prompt)
             raw_text = response.text
             
-            # --- Parsing and Output Presentation using Expanders ---
             st.markdown("---")
             st.header("Analysis Results")
             
-            # Define tags for parsing
             tags = {
                 "1. First Impression (5-Second Test)": ("<FirstImpression>", "</FirstImpression>"),
                 "2. ATS & Keyword Alignment": ("<ATSKeywords>", "</ATSKeywords>"),
@@ -235,11 +222,9 @@ if analyze_button:
                     return text[start_index:end_index].strip()
                 return "Analysis content could not be found for this section. Please try rerunning the analysis."
 
-            # Iterate through the defined sections and display in expanders
             for section_title, (start_tag, end_tag) in tags.items():
                 content = extract_content(raw_text, start_tag, end_tag)
                 
-                # Expand the Overall Recommendation by default
                 expanded = True if section_title.startswith("5.") else False
 
                 with st.expander(f"{section_title}", expanded=expanded):
@@ -248,6 +233,6 @@ if analyze_button:
             st.markdown("---")
             st.success("Review complete. Focus on the actionable feedback provided above for your next revision.")
 
-elif not analyze_button and not uploaded_file and not job_role:
-    # Initial landing state instruction
+if not analyze_button and not uploaded_file and not job_role:
     st.info("To begin, use the sections above to upload your resume and specify the job role. Click 'Analyze Resume' for a comprehensive review.")
+
