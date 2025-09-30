@@ -36,9 +36,9 @@ st.markdown("""
     .stTextInput>div>div>input {
         background-color: #1a1a1a; /* Very dark background for input fields */
         color: #ffffff;
-        border-radius: 6px;
+        border-radius: 8px;
         border: 1px solid #555555;
-        padding: 10px;
+        padding: 12px 35px;
         box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
     }
     
@@ -231,4 +231,5 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
 
