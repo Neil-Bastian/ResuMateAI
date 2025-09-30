@@ -83,7 +83,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# --- API Configuration ---
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -92,7 +92,7 @@ else:
     st.stop()
 
 
-# --- Header Section ---
+
 st.title("ResuMate AI: Professional Resume Review")
 st.markdown(
     """
@@ -101,12 +101,12 @@ st.markdown(
 )
 
 
-# --- Input Definitions (Main Area Card) ---
+
 with st.container():
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.header("Step 1: Document and Target")
     
-    # --- CHANGE START: Inputs are now stacked sequentially ---
+    
     uploaded_file = st.file_uploader(
         "Upload Resume (.PDF or .txt)", 
         type=["pdf", "txt"],
@@ -117,14 +117,13 @@ with st.container():
         "Enter the Target Job Role",
         placeholder="e.g., Senior Data Scientist, UX Designer, Account Executive"
     )
-    # --- CHANGE END ---
+   
         
     analyze_button = st.button("Analyze Resume")
     
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# --- Sidebar (Help/Instructions) ---
 with st.sidebar:
     st.sidebar.header("HELP")
     st.header("How to Get the Best Review")
@@ -148,7 +147,6 @@ with st.sidebar:
     st.info("The comprehensive analysis typically completes in under 30 seconds.")
 
 
-# --- Text Extraction Functions ---
 def extract_text_from_pdf(pdf_file_bytes):
     pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_file_bytes))
     text = ""
@@ -169,15 +167,13 @@ def extract_text_from_file(file):
     return ""
 
 
-# --- Conditional Logic for Analysis or Initial State ---
 
-# 1. Handle the Initial Landing State (before analysis is clicked)
 if not analyze_button:
     st.info("To begin, please use the card above to upload your resume and specify the job role, then click 'Analyze Resume' for a comprehensive review.")
     st.stop()
 
 
-# 2. Main Analysis Logic (Only runs if analyze_button is True)
+
 if analyze_button:
     
     if not uploaded_file:
@@ -198,7 +194,7 @@ if analyze_button:
                 st.error("Error: Text extraction failed or the file is empty. Please verify the uploaded document.")
                 st.stop()
 
-            # LLM Prompt
+           
             prompt = f"""
             Act as an expert career coach and senior recruiter with 15 years of experience in the relevant industry for the role of '{job_role}'.
             Your task is to perform a comprehensive review of the following resume. Your critique must be constructive, detailed, and actionable.
@@ -220,7 +216,7 @@ if analyze_button:
             )
             response = model.generate_content(prompt)
             
-            # --- Output Presentation ---
+            
             st.markdown("---")
             st.header("Analysis Results")
             st.markdown(response.text)
@@ -229,4 +225,5 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
 
