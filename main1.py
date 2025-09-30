@@ -16,55 +16,61 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-        /* Main page background */
+        /* Global font & background */
         .stApp {
-            background-color: #f9fafb;
+            background-color: #ffffff;
+            font-family: "Inter", "Segoe UI", sans-serif;
         }
 
-        /* Title styling */
+        /* Headings */
         h1 {
             text-align: center;
             font-weight: 700;
-            color: #1a202c;
+            color: #2d2d2d;
+            margin-bottom: 0.5rem;
         }
-
-        /* Subtitle */
         .subtitle {
             text-align: center;
-            font-size: 18px;
-            color: #4a5568;
-            margin-bottom: 25px;
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 2rem;
         }
 
-        /* File uploader & inputs */
-        .stFileUploader, .stTextInput {
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0px 2px 6px rgba(0,0,0,0.08);
+        /* Inputs */
+        .stTextInput, .stFileUploader {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.6rem;
+            background: #f9fafb;
         }
 
-        /* Button styling */
+        /* Button */
         div.stButton > button {
-            background-color: #2563eb;
-            color: white;
+            background: #111827;
+            color: #ffffff;
             font-weight: 600;
-            border-radius: 10px;
-            padding: 10px 20px;
-            transition: 0.2s;
+            border-radius: 6px;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            transition: background 0.2s ease;
         }
         div.stButton > button:hover {
-            background-color: #1d4ed8;
-            transform: scale(1.02);
+            background: #374151;
         }
 
-        /* Results section */
+        /* Divider */
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        /* Results card */
         .result-card {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 14px;
-            box-shadow: 0px 2px 10px rgba(0,0,0,0.08);
-            margin-top: 25px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1.5rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -138,4 +144,5 @@ if analyze_button and uploaded_file:
 
         except Exception as e:
             st.error(f" An error occurred during analysis: {str(e)}")
+
 
