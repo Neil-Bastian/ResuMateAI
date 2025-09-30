@@ -8,14 +8,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- Page Configuration and Professional Styling (Dark Theme Fix) ---
 st.set_page_config(
     page_title="ResuMate AI: Professional Review", 
     page_icon="📄", 
     layout="wide" 
 )
-
-# Custom CSS for a clean, professional Dark Theme that makes inputs blend
 st.markdown("""
 <style>
     /* 1. Main Background: Dark Blue/Gray */
@@ -92,15 +89,12 @@ else:
     st.stop()
 
 
-
 st.title("ResuMate AI: Professional Resume Review")
 st.markdown(
     """
     **Upload your resume** and specify the **target role** below. Receive a detailed, AI-powered critique focused on ATS alignment, quantifiable impact, and professional formatting.
     """
 )
-
-
 
 with st.container():
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
@@ -122,7 +116,6 @@ with st.container():
     analyze_button = st.button("Analyze Resume")
     
     st.markdown('</div>', unsafe_allow_html=True)
-
 
 with st.sidebar:
     st.sidebar.header("HELP")
@@ -167,19 +160,14 @@ def extract_text_from_file(file):
     return ""
 
 
-
 if not analyze_button:
     st.info("To begin, please use the card above to upload your resume and specify the job role, then click 'Analyze Resume' for a comprehensive review.")
     st.stop()
 
-
-
 if analyze_button:
-    
     if not uploaded_file:
         st.error("Error: Please upload your resume file to proceed.")
         st.stop()
-    
     if not job_role.strip():
         st.warning("Warning: Please enter the Target Job Role.")
         st.stop()
@@ -189,7 +177,6 @@ if analyze_button:
     with st.spinner("Executing comprehensive analysis..."):
         try:
             file_content = extract_text_from_file(uploaded_file)
-
             if not file_content or not file_content.strip():
                 st.error("Error: Text extraction failed or the file is empty. Please verify the uploaded document.")
                 st.stop()
@@ -225,5 +212,6 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
 
 
