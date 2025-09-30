@@ -126,6 +126,7 @@ with st.container():
 
 # --- Sidebar (Help/Instructions) ---
 with st.sidebar:
+    st.sidebar.header("HELP")
     st.header("How to Get the Best Review")
     st.markdown(
         """
@@ -228,3 +229,4 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
