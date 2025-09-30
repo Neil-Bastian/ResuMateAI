@@ -40,6 +40,7 @@ st.markdown("""
         border: 1px solid #555555;
         padding: 12px 35px;
         box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
+        margin-top: 20px;
     }
     
     /* Ensure all text/labels inside the card are white */
@@ -231,5 +232,6 @@ if analyze_button:
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+
 
 
