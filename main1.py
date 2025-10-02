@@ -4,15 +4,21 @@ import io
 import os
 import chardet
 import google.generativeai as genai
+import re 
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+if 'analysis_running' not in st.session_state:
+    st.session_state.analysis_running = False
 
 st.set_page_config(
     page_title="ResuMate AI: Professional Review", 
     page_icon="📄", 
     layout="wide" 
 )
+
 st.markdown("""
 <style>
     /* 1. Main Background: Dark Blue/Gray */
@@ -28,7 +34,6 @@ st.markdown("""
         padding-top: 15px;
     }
 
-
     /* 3. Input Field Styling (Text Input & Uploader Backgrounds) */
     .stTextInput>div>div>input {
         background-color: #1a1a1a; /* Very dark background for input fields */
@@ -39,6 +44,11 @@ st.markdown("""
         box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
     }
     
+    /* Target the stContainer background if needed (Streamlit v1.x class) */
+    .stContainer {
+        background-color: #2c2c2c;
+    }
+
     /* Ensure all text/labels inside the card are white */
     label, h2, h3, p {
         color: #ffffff !important;
@@ -62,7 +72,7 @@ st.markdown("""
         box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
     }
     
-    /* Expander Styling for Results (If used later) */
+    /* Expander Styling for Results */
     .streamlit-expanderHeader {
         font-weight: bold;
         color: #eeeeee;
@@ -76,9 +86,32 @@ st.markdown("""
         background-color: #1a1a1a;
         color: #ffffff;
     }
+
+    /* Custom Score Card Styling */
+    .score-card {
+        text-align: center;
+        padding: 20px;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #1f1f1f, #2c2c2c);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;
+        color: #ffffff;
+        border: 1px solid #007BFF;
+    }
+    .score-number {
+        font-size: 4em;
+        font-weight: 900;
+        color: #4CAF50; /* Initial color, adjusted dynamically in Python */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .score-label {
+        font-size: 1.2em;
+        font-weight: 500;
+        letter-spacing: 1px;
+        margin-top: -10px;
+    }
 </style>
 """, unsafe_allow_html=True)
-
 
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -88,7 +121,6 @@ else:
     st.error("GEMINI_API_KEY not found. Please ensure your .env file is configured.")
     st.stop()
 
-
 st.title("ResuMate AI: Professional Resume Review")
 st.markdown(
     """
@@ -96,10 +128,9 @@ st.markdown(
     """
 )
 
+st.markdown('<div class="input-card">', unsafe_allow_html=True) 
 with st.container():
-    st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.header("Step 1: Document and Target")
-    
     
     uploaded_file = st.file_uploader(
         "Upload Resume (.PDF or .txt)", 
@@ -111,11 +142,14 @@ with st.container():
         "Enter the Target Job Role",
         placeholder="e.g., Senior Data Scientist, UX Designer, Account Executive"
     )
-   
-        
-    analyze_button = st.button("Analyze Resume")
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    analyze_button = st.button(
+        "Analyze Resume", 
+        disabled=st.session_state.analysis_running
+    )
+    
+st.markdown('</div>', unsafe_allow_html=True) 
+
 
 with st.sidebar:
     st.header("How to Get the Best Review")
@@ -159,59 +193,164 @@ def extract_text_from_file(file):
     return ""
 
 
-if not analyze_button:
-    st.info("To begin, please use the card above to upload your resume and specify the job role, then click 'Analyze Resume' for a comprehensive review.")
-    st.stop()
+def display_score(score):
+    """Generates an HTML component to display the CV Score with color coding."""
+    try:
+        score_val = int(score)
+    except (ValueError, TypeError):
+        score_val = 0
 
-if analyze_button:
+    if score_val >= 80:
+        color = "#4CAF50"  
+    elif score_val >= 60:
+        color = "#FFC107"  
+    else:
+        color = "#F44336"  
+
+    st.markdown(
+        f"""
+        <div class="score-card">
+            <div class="score-label">Estimated ATS Compatibility Score</div>
+            <div class="score-number" style="color: {color};">{score_val}/100</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def extract_content_robust(text, start_tag, end_tag):
+    """
+    Extracts content between start_tag and end_tag using regular expressions 
+    for robust parsing, handling newlines and case variation.
+    """
+    pattern = rf"{re.escape(start_tag)}(.*?){re.escape(end_tag)}"
+    
+    match = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
+    
+    if match:
+        return match.group(1).strip()
+    return None
+
+def run_analysis(uploaded_file, job_role):
+    st.session_state.analysis_running = True
+    
     if not uploaded_file:
         st.error("Error: Please upload your resume file to proceed.")
-        st.stop()
+        st.session_state.analysis_running = False
+        return
+    
     if not job_role.strip():
         st.warning("Warning: Please enter the Target Job Role.")
-        st.stop()
+        st.session_state.analysis_running = False
+        return
 
     st.subheader(f"Detailed Review for Role: **{job_role.strip()}**")
     
     with st.spinner("Executing comprehensive analysis..."):
         try:
             file_content = extract_text_from_file(uploaded_file)
+
             if not file_content or not file_content.strip():
                 st.error("Error: Text extraction failed or the file is empty. Please verify the uploaded document.")
-                st.stop()
+                st.session_state.analysis_running = False
+                return
 
-           
             prompt = f"""
+            ***RESPONSE STRUCTURE MANDATE: Your entire output MUST strictly contain ONLY the required XML-like tags and the markdown content within them. DO NOT include any introductory or concluding text outside of these tags.***
+            
             Act as an expert career coach and senior recruiter with 15 years of experience in the relevant industry for the role of '{job_role}'.
             Your task is to perform a comprehensive review of the following resume. Your critique must be constructive, detailed, and actionable.
+
+            First, based on ATS keyword matching, impact quantification, and formatting best practices, assign a single numerical score from 0 to 100. **IMPORTANT: Use a highly deterministic and stable scoring mechanism to ensure that the score remains consistent across multiple runs when the input resume and job role are unchanged.** Place this score *ONLY* inside the <CVScore> tag.
+
             Target Job Role: {job_role}
 
             Resume Content:
             {file_content}
 
-            Please structure your feedback into the following sections, using clear markdown headings (H3) for each section:
-            1.  **First Impression (5-Second Test):** Your immediate impression of the candidate. What stands out, for better or worse?
-            2.  **ATS & Keyword Alignment:** Analyze how well the resume is optimized for Applicant Tracking Systems (ATS). Compare keywords from the resume against the likely requirements for the '{job_role}' role. List critical keywords that are present and suggest any that are missing.
-            3.  **Impact & Quantification:** Review the bullet points. Identify 3-5 examples that could be stronger and rewrite them to be more impactful using the STAR (Situation, Task, Action, Result) method. Emphasize adding metrics and quantifiable achievements.
-            4.  **Clarity, Formatting, and Readability:** Comment on the structure and layout. Is it easy to read? Are there any formatting issues?
-            5.  **Overall Recommendation:** Provide a final summary and a recommendation. Based on the resume, would you recommend this candidate for an interview? Why or why not?
+            You **MUST** structure your entire feedback into five distinct, clearly labeled sections, and include the CV Score tag. Crucially, you **MUST** wrap each section's content and the score in the specific XML-like tags listed below. The response **MUST ONLY** contain the tags and the markdown content within them.
+
+            Tags to use (all are MANDATORY and must be closed):
+            1. **<CVScore>... (0-100 numerical value)</CVScore>**
+            2. **<FirstImpression>...</FirstImpression>**
+            3. **<ATSKeywords>...</ATSKeywords>**
+            4. **<ImpactQuantification>...</ImpactQuantification>**
+            5. **<FormattingReadability>...</FormattingReadability>**
+            6. **<OverallRecommendation>...</OverallRecommendation>**
+
+            Example Structure (Adhere to this exactly, only varying the content):
+            <CVScore>85</CVScore>
+            <FirstImpression>
+            **Immediate reaction:** The layout is clean but lacks a professional summary.
+            * **Strength:** Strong quantifiable results are evident.
+            </FirstImpression>
+            
+            [... and so on for the remaining sections ...]
+
+            Ensure all content within the content tags uses strong markdown (bold text, bullet points) for maximum readability.
             """
             model = genai.GenerativeModel(
                 model_name="gemini-2.5-flash",
-                system_instruction="You are a world-class expert resume reviewer and career coach. Format your output using clear markdown with bold text and bullet points."
+                system_instruction="You are a world-class expert resume reviewer and career coach. Your output MUST strictly adhere to the requested XML-like tag structure for parsing. **Crucially, prioritize scoring consistency over creativity.**"
             )
             response = model.generate_content(prompt)
-            
+            raw_text = response.text
             
             st.markdown("---")
-            st.header("Analysis Results")
-            st.markdown(response.text)
+            
+            tags = {
+                "CV Score": ("<CVScore>", "</CVScore>"),
+                "1. First Impression (5-Second Test)": ("<FirstImpression>", "</FirstImpression>"),
+                "2. ATS & Keyword Alignment": ("<ATSKeywords>", "</ATSKeywords>"),
+                "3. Impact & Quantification (STAR Method Focus)": ("<ImpactQuantification>", "</ImpactQuantification>"),
+                "4. Clarity, Formatting, & Readability": ("<FormattingReadability>", "</FormattingReadability>"),
+                "5. Overall Recommendation": ("<OverallRecommendation>", "</OverallRecommendation>")
+            }
+
+            cv_score = extract_content_robust(raw_text, *tags["CV Score"])
+            
+            if cv_score:
+                col_score, col_results = st.columns([1, 3])
+                with col_score:
+                    display_score(cv_score)
+                with col_results:
+                    st.header("Analysis Results")
+            else:
+                st.header("Analysis Results")
+                st.error("Could not extract the numerical CV score. Displaying raw AI response for structural debugging.")
+                st.code(raw_text, language='text')
+                st.session_state.analysis_running = False
+                return 
+            content_tags = {k: v for k, v in tags.items() if k != "CV Score"}
+
+            all_parsed_successfully = True
+            for section_title, (start_tag, end_tag) in content_tags.items():
+                content = extract_content_robust(raw_text, start_tag, end_tag)
+                
+                expanded = True if section_title.startswith("5.") else False
+
+                with st.expander(f"{section_title}", expanded=expanded):
+                    if content:
+                        st.markdown(content, unsafe_allow_html=True)
+                    else:
+                        st.error(f"Failed to parse content for section: **{section_title}** from the AI response.")
+                        st.code(raw_text, language='text') 
+                        st.warning("The AI output structure was not strictly maintained (likely a missing tag). Please try analyzing again.")
+                        all_parsed_successfully = False
+                        break 
+            
             st.markdown("---")
-            st.success("Review complete. Focus on the actionable feedback provided above for your next revision.")
+            if all_parsed_successfully:
+                st.success("Review complete. Focus on the actionable feedback provided above for your next revision.")
+            
 
         except Exception as e:
             st.error(f"An error occurred during analysis or output parsing: {str(e)}")
+        finally:
+            st.session_state.analysis_running = False
+            
+if not analyze_button:
+    st.info("To begin, please use the card above to upload your resume and specify the job role, then click 'Analyze Resume' for a comprehensive review.")
+    st.stop()
 
-
-
-
+if analyze_button:
+    run_analysis(uploaded_file, job_role)
